@@ -18,16 +18,12 @@
 
         // Чтение из БД
         case 'GET':
-            $sql = "SELECT 
-                    list.*, categories.title AS category_title
-                    FROM list
-                    LEFT JOIN categories
-                    ON list.category_id = categories.id";
+            $sql = "SELECT * FROM `categories`";
             $query = $connection->query($sql);
-            $list = $query->fetchAll();
+            $categories = $query->fetchAll();
             // Ответ в fe
             echo json_encode([
-                'list' => $list
+                'categories' => $categories
             ]);
             exit;
 
@@ -39,12 +35,11 @@
                 echo json_encode(["error" => "title is required"]);
                 exit;
             }
-            $sql = "INSERT INTO list (title, category_id)
-                    VALUES (:title, :category_id)";
+            $sql = "INSERT INTO categories (title)
+                    VALUES (:title)";
             $stmt = $connection->prepare($sql);
             $stmt->execute([
-                ':title' => $data['title'],
-                ':category_id' => $data['category_id']
+                ':title' => $data['title']
             ]);
             // Ответ в fe
             echo json_encode(["status" => "created"]);
@@ -52,13 +47,12 @@
 
         // Изменение значения в БД
         case 'PUT':
-            $sql = "UPDATE list 
-                    SET title=:title, category_id=:category_id
+            $sql = "UPDATE categories 
+                    SET title=:title
                     WHERE id=:id";
             $stmt = $connection->prepare($sql);
             $stmt->execute([
                 ':title' => $data['title'],
-                ':category_id' => $data['category_id'],
                 ':id' => $data['id']
             ]);
             // Ответ в fe
@@ -67,7 +61,7 @@
             
         // Удаление значения из БД
         case 'DELETE':
-            $sql = "DELETE FROM list WHERE id=:id";
+            $sql = "DELETE FROM categories WHERE id=:id";
             $stmt = $connection->prepare($sql);
             $stmt->execute([
                 ':id' => $data['id']
